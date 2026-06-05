@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SQL Generator (Web)</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 12px;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI",
+          sans-serif;
+        background: #0f172a;
+        color: #e5e7eb;
+      }
+      .app {
+        max-width: 1024px;
+        margin: 0 auto;
+      }
+      h1 {
+        font-size: 20px;
+        margin: 0 0 12px;
+      }
+      h2 {
+        margin: 0 0 10px;
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        opacity: 0.9;
+      }
+      .card {
+        border-radius: 12px;
+        padding: 14px 16px;
+        margin-bottom: 14px;
+        background: rgba(15, 23, 42, 0.9);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+        border: 1px solid rgba(148, 163, 184, 0.3);
+      }
+      label {
+        display: block;
+        margin: 8px 0 4px;
+        font-size: 12px;
+        opacity: 0.92;
+      }
+      input[type="text"],
+      input[type="password"],
+      input[type="number"],
+      select,
+      textarea {
+        width: 100%;
+        padding: 7px 9px;
+        border-radius: 8px;
+        border: 1px solid rgba(148, 163, 184, 0.5);
+        background: rgba(15, 23, 42, 0.9);
+        color: #e5e7eb;
+        font-size: 13px;
+        outline: none;
+      }
+      input::placeholder,
+      textarea::placeholder {
+        color: #64748b;
+      }
+      textarea {
+        resize: vertical;
+        min-height: 72px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+      }
+      .hint {
+        font-size: 11px;
+        opacity: 0.8;
+        margin-top: 4px;
+      }
+      .row,
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        margin-top: 8px;
+      }
+      .actions {
+        margin: 16px 0;
+      }
+      button {
+        padding: 7px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        background: rgba(15, 23, 42, 0.9);
+        color: #e5e7eb;
+        font-size: 13px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      button.primary {
+        background: linear-gradient(135deg, #22c55e, #0ea5e9);
+        border: none;
+        color: #0b1120;
+        font-weight: 600;
+      }
+      button.secondary {
+        background: rgba(15, 23, 42, 0.9);
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      button.small {
+        padding: 4px 9px;
+        border-radius: 999px;
+        font-size: 11px;
+      }
+      .section-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .table-block {
+        border-radius: 10px;
+        padding: 10px 12px;
+        margin-bottom: 10px;
+        border: 1px dashed rgba(148, 163, 184, 0.6);
+        background: rgba(15, 23, 42, 0.7);
+      }
+      .table-block header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+      }
+      .table-block header span {
+        font-weight: 600;
+        font-size: 12px;
+      }
+      .output {
+        min-height: 180px;
+        max-height: 400px;
+        white-space: pre-wrap;
+        word-break: break-word;
+        margin: 0;
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: #020617;
+        border: 1px solid rgba(30, 64, 175, 0.9);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
+        font-size: 13px;
+        overflow: auto;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 8px;
+        border-radius: 999px;
+        background: rgba(37, 99, 235, 0.12);
+        color: #93c5fd;
+        font-size: 11px;
+        margin-left: 6px;
+      }
+      .toast {
+        position: fixed;
+        bottom: 16px;
+        right: 16px;
+        padding: 8px 12px;
+        background: #020617;
+        border-radius: 6px;
+        border: 1px solid rgba(148, 163, 184, 0.5);
+        font-size: 12px;
+        opacity: 0;
+        pointer-events: none;
+        color: #e5e7eb;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+        transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+        transform: translateY(8px);
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      @media (max-width: 720px) {
+        .card {
+          padding: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="card" style="margin-bottom: 16px">
+        <h1>
+          SQL Generator
+          <span class="badge">Web 版 · OpenAI 兼容 API</span>
+        </h1>
+        <p class="hint">
+          从基础表、字段注释与目标字段配置，一站式生成完整 SQL。API Key 保持在浏览器内存中，请仅在可信环境使用。
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>API（国产模型）</h2>
+        <label>模型厂商</label>
+        <select id="provider"></select>
+        <p class="hint">
+          切换厂商会填入默认 Base URL；下列 model 以公开文档与常见用法整理，下单前请以各厂商控制台为准。
+          火山方舟豆包常使用控制台中的 Endpoint ID（多为 ep- 或 doubao- 开头）。
+        </p>
+
+        <label>API Base URL</label>
+        <input type="text" id="apiBaseUrl" placeholder="https://..." autocomplete="off" />
+
+        <label>模型（主流型号）</label>
+        <select id="model"></select>
+
+        <label>API Key（浏览器仅保存在内存，不落盘）</label>
+        <input type="password" id="apiKey" placeholder="sk- / xxxxx" autocomplete="off" />
+
+        <p class="hint">
+          建议在前置代理 / 只读 Key 上使用。生产环境中请改为由后端注入密钥，避免暴露在浏览器中。
+        </p>
+      </div>
+
+      <div class="card">
+        <h2>生成选项</h2>
+        <label>SQL 方言</label>
+        <select id="dialect">
+          <option value="postgresql">PostgreSQL</option>
+          <option value="mysql">MySQL</option>
+          <option value="sqlserver">SQL Server</option>
+          <option value="sqlite">SQLite</option>
+          <option value="oracle">Oracle</option>
+          <option value="generic">通用 / ANSI</option>
+        </select>
+
+        <label>温度</label>
+        <input type="number" id="temperature" min="0" max="2" step="0.1" value="0.2" />
+
+        <label>自然语言目标（可选）</label>
+        <textarea
+          id="userGoal"
+          rows="3"
+          placeholder="例如：按用户汇总订单金额，只保留 2024 年数据"
+        ></textarea>
+      </div>
+
+      <div class="card">
+        <div class="section-head">
+          <h2>表规格序列</h2>
+          <button type="button" id="addTable" class="small">+ 添加表</button>
+        </div>
+        <div id="tables"></div>
+      </div>
+
+      <div class="actions">
+        <button type="button" id="generate" class="primary">生成 SQL</button>
+        <button type="button" id="abort" disabled>停止</button>
+      </div>
+
+      <div class="card">
+        <h2>输出</h2>
+        <pre id="output" class="output"></pre>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <script src="./web-app.js"></script>
+  </body>
+</html>
+

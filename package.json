@@ -1,0 +1,92 @@
+{
+  "name": "cursor-sql-generator",
+  "displayName": "SQL Generator (LLM)",
+  "description": "从基础表、字段注释与目标字段配置，通过大模型 API 一站式生成完整 SQL。",
+  "version": "0.1.0",
+  "publisher": "local",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:cursor-sql-generator.open",
+    "onView:sqlGenerator.sidebar"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "cursor-sql-generator.open",
+        "title": "SQL Generator: 打开侧边栏"
+      },
+      {
+        "command": "cursor-sql-generator.insertSql",
+        "title": "SQL Generator: 将上次生成的 SQL 插入编辑器"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "sql-generator",
+          "title": "SQL Generator",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "sql-generator": [
+        {
+          "type": "webview",
+          "id": "sqlGenerator.sidebar",
+          "name": "SQL 生成"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "SQL Generator",
+      "properties": {
+        "sqlGenerator.temperature": {
+          "type": "number",
+          "default": 0.2,
+          "minimum": 0,
+          "maximum": 2,
+          "description": "默认生成温度（可在侧边栏覆盖）。"
+        },
+        "sqlGenerator.dialect": {
+          "type": "string",
+          "default": "postgresql",
+          "enum": [
+            "postgresql",
+            "mysql",
+            "sqlserver",
+            "sqlite",
+            "oracle",
+            "generic"
+          ],
+          "description": "默认 SQL 方言。"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package",
+    "start": "node out/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^20.10.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^2.22.0",
+    "typescript": "^5.3.3"
+  }
+}
